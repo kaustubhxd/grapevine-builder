@@ -1,0 +1,534 @@
+/* -------------------------------------------------------------------------- */
+/* Grapevine Builder — Black & White Theme for GrapesJS                      */
+/* -------------------------------------------------------------------------- */
+
+.grapevine-builder {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Side-by-side layout when showChat is enabled */
+.grapevine-builder--with-chat {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.grapevine-builder--with-chat > .grapevine-toolbar {
+  display: none; /* toolbar is inside editor column, handled via wrapper */
+}
+
+.grapevine-chat-sidebar {
+  width: 340px;
+  min-width: 280px;
+  max-width: 400px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ---- Toolbar ---- */
+
+.grapevine-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #111111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.grapevine-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.grapevine-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888888;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.grapevine-toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.grapevine-toolbar-btn-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.grapevine-toolbar-btn-active:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Editor canvas ---- */
+
+.grapevine-editor {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Override GrapesJS default styles for a modern look */
+.grapevine-builder .gjs-cv-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.grapevine-builder .gjs-cv-canvas__frames,
+.grapevine-builder .gjs-frames {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.grapevine-builder .gjs-frame-wrapper {
+  height: 100% !important;
+  /* When device width is empty (Desktop), fill the container */
+  min-width: 100%;
+  margin: 0 auto;
+  transition: width 0.3s ease;
+  background: #ffffff;
+}
+
+/* When GrapesJS sets an explicit width for Tablet/Mobile, min-width should not override */
+.grapevine-builder .gjs-frame-wrapper[style*="width"] {
+  min-width: 0;
+}
+
+.grapevine-builder .gjs-frame {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure the editor fills full space — hide all sidebars */
+.grapevine-builder .gjs-editor {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.grapevine-builder .gjs-editor-cont {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Hide default GrapesJS panels and sidebars — we use our own toolbar */
+.grapevine-builder .gjs-pn-panels,
+.grapevine-builder .gjs-pn-views-container,
+.grapevine-builder .gjs-blocks-cs,
+.grapevine-builder .gjs-sm-sectors,
+.grapevine-builder .gjs-clm-tags,
+.grapevine-builder .gjs-trt-traits {
+  display: none !important;
+}
+
+/* Component selection highlight */
+.grapevine-builder .gjs-selected {
+  outline: 2px solid #ffffff !important;
+  outline-offset: -1px;
+}
+
+.grapevine-builder .gjs-hovered {
+  outline: 1px dashed rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Highlighter frame (hover outline positioned over components) */
+.grapevine-builder .gjs-highlighter,
+.grapevine-builder .gjs-highlighter-sel {
+  pointer-events: none;
+}
+
+.grapevine-builder .gjs-highlighter {
+  outline: 1px dashed rgba(100, 160, 255, 0.7) !important;
+}
+
+.grapevine-builder .gjs-highlighter-sel {
+  outline: 2px solid rgba(100, 160, 255, 0.9) !important;
+}
+
+/* Component badge */
+.grapevine-builder .gjs-badge {
+  background: #333333;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Toolbar component tools (move, resize handles) */
+.grapevine-builder .gjs-toolbar {
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+}
+
+.grapevine-builder .gjs-toolbar-item {
+  color: #999999;
+  padding: 3px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.grapevine-builder .gjs-toolbar-item svg {
+  width: 14px;
+  height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+  fill: currentColor;
+}
+
+.grapevine-builder .gjs-toolbar-item:hover {
+  color: #ffffff;
+}
+
+/* Resizer handles */
+.grapevine-builder .gjs-resizer-h {
+  border-color: #ffffff;
+}
+
+/* ---- Preview iframe overlay ---- */
+
+.grapevine-preview-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
+  border: none;
+  background: #ffffff;
+}
+
+/* ---- Canvas column (toolbar + editor wrapper stacked) ---- */
+
+.grapevine-canvas-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Editor wrapper (overlay + canvas container) ---- */
+
+.grapevine-editor-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Overlay (idle / loading) ---- */
+
+.grapevine-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Idle state */
+.grapevine-idle-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #999999;
+}
+
+.grapevine-idle-icon {
+  opacity: 0.4;
+}
+
+.grapevine-idle-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Loading state */
+.grapevine-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #666666;
+}
+
+@keyframes grapevine-spin {
+  to { transform: rotate(360deg); }
+}
+
+.grapevine-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #333333;
+  border-radius: 50%;
+  animation: grapevine-spin 0.8s linear infinite;
+}
+
+.grapevine-loading-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Chat Panel                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.gvn-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Messages ---- */
+
+.gvn-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gvn-chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+  color: #666;
+  text-align: center;
+}
+.gvn-chat-empty p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.gvn-chat-msg {
+  max-width: 85%;
+  word-wrap: break-word;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.gvn-chat-msg-user {
+  align-self: flex-end;
+  background: #222;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px 12px 2px 12px;
+  padding: 8px 12px;
+}
+
+.gvn-chat-msg-assistant {
+  align-self: flex-start;
+  padding: 4px 0;
+  white-space: pre-wrap;
+}
+
+.gvn-chat-msg-text {
+  white-space: pre-wrap;
+}
+
+.gvn-chat-msg-images {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.gvn-chat-msg-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Status indicator ---- */
+
+.gvn-chat-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #888;
+  padding: 4px 0;
+}
+
+.gvn-chat-status .gvn-chat-spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+/* ---- Input area ---- */
+
+.gvn-chat-input-area {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.gvn-chat-attachments {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.gvn-chat-attachment {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.gvn-chat-attachment img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gvn-chat-attachment-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.gvn-chat-attachment:hover .gvn-chat-attachment-remove {
+  opacity: 1;
+}
+
+.gvn-chat-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 8px;
+}
+
+.gvn-chat-textarea {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #e0e0e0;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 4px 0;
+  max-height: 150px;
+}
+
+.gvn-chat-textarea::placeholder {
+  color: #666;
+}
+
+.gvn-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.gvn-chat-btn:hover:not(:disabled) {
+  color: #e0e0e0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gvn-chat-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.gvn-chat-send-btn {
+  background: #333;
+  color: #e0e0e0;
+}
+
+.gvn-chat-send-btn:hover:not(:disabled) {
+  background: #444;
+}
+
+.gvn-chat-send-btn .gvn-chat-spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+/* Reuse the existing spinner animation */
+.gvn-chat-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #555;
+  border-top-color: #ccc;
+  border-radius: 50%;
+  animation: grapevine-spin 0.8s linear infinite;
+}
