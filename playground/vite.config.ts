@@ -9,6 +9,10 @@ dotenvConfig({ path: path.resolve(__dirname, "../../../.env.local") });
 
 export default defineConfig({
   root: path.resolve(__dirname),
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
+  },
   plugins: [
     react(),
     {
@@ -23,13 +27,15 @@ export default defineConfig({
           );
           const { createOpenAI } = await import("@ai-sdk/openai");
 
-          const apiKey = process.env.OPENAI_API_KEY;
+          const apiKey =
+            (req.headers["x-openai-api-key"] as string) ||
+            process.env.OPENAI_API_KEY;
           if (!apiKey) {
-            res.writeHead(500, { "Content-Type": "application/json" });
+            res.writeHead(401, { "Content-Type": "application/json" });
             res.end(
               JSON.stringify({
                 error:
-                  "OPENAI_API_KEY not set. Create a .env file in packages/grapevine-builder/ with OPENAI_API_KEY=sk-...",
+                  "OpenAI API key not provided. Enter your key in the playground.",
               }),
             );
             return;

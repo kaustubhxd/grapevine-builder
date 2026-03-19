@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm vite build playground --config playground/vite.config.ts",
+  "outputDirectory": "playground/dist",
+  "framework": null,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/grapes" }
+  ]
+}

@@ -47,6 +47,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
     const {
       chatEndpoint,
       generateEndpoint,
+      headers: extraHeaders,
       onSave,
       onLoad,
       onAssetUpload,
@@ -229,7 +230,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
 
           const response = await fetch(chatEndpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...extraHeaders },
             body: JSON.stringify({
               messages: recentMessages,
               projectContext: projectCtx,
@@ -388,7 +389,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
         try {
           const response = await fetch(generateEndpoint, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...extraHeaders },
             body: JSON.stringify({ prompt, type: projectType }),
           });
 
@@ -590,7 +591,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
                       </svg>
                     </div>
                     <p className="grapevine-idle-text">
-                      Send a message to create your website
+                      Send a message to start building your page
                     </p>
                   </div>
                 )}

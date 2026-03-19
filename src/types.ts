@@ -174,6 +174,8 @@ export interface GrapevineBuilderProps {
   onAssetDelete?: (urls: string[]) => Promise<void>;
   chatEndpoint: string;
   generateEndpoint: string;
+  /** Extra headers sent with every chat / generate request (e.g. API keys). */
+  headers?: Record<string, string>;
   projectType?: "web";
   className?: string;
   /** Show the built-in chat panel alongside the canvas. */

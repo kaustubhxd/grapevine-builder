@@ -13,7 +13,8 @@
     "README.md"
   ],
   "scripts": {
-    "dev": "vite playground --config playground/vite.config.ts"
+    "dev": "vite playground --config playground/vite.config.ts",
+    "build:playground": "vite build playground --config playground/vite.config.ts"
   },
   "dependencies": {
     "@grapesjs/react": "^2.0.0",
@@ -22,6 +23,9 @@
   },
   "devDependencies": {
     "@ai-sdk/openai": "^3.0.41",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "dotenv": "^17.2.3",
     "typescript": "^5.0.0",
@@ -33,5 +37,6 @@
     "react-dom": "^18.0.0 || ^19.0.0",
     "zod": "^3.0.0 || ^4.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
 }
