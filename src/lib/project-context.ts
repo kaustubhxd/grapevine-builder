@@ -47,7 +47,7 @@ export function buildProjectContext(
       (c): c is NonNullable<typeof c> =>
         c !== null && typeof (c as { getId?: unknown }).getId === "function",
     )
-    .map((c) => ({ id: c!.getId(), content: "" }));
+    .map((c) => ({ id: c.getId(), content: c.toHTML() }));
 
   const availablePages = editor.Pages
     ? editor.Pages.getAll().map((p) => ({ id: p.getId(), name: p.getName() || "Page" }))
@@ -71,6 +71,12 @@ export function buildProjectContext(
       ? false
       : (editor.getWrapper()?.components?.()?.length ?? 0) === 0;
 
+  const imageUrls = editor.AssetManager
+    ? editor.AssetManager.getAll()
+        .models.map((m) => m.get("src"))
+        .filter(Boolean)
+    : [];
+
   return {
     selectedPage,
     selectedComponent,
@@ -82,6 +88,6 @@ export function buildProjectContext(
     installedPlugins: [],
     isEmail: projectType === "email",
     isNewProject,
-    imageUrls: [],
+    imageUrls,
   };
 }

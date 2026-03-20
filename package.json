@@ -22,6 +22,8 @@
     "ai": "^6.0.0",
     "grapesjs": "^0.22.14",
     "grapesjs-blocks-basic": "^1.0.2",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "zod": "^3.0.0"
   },
   "devDependencies": {

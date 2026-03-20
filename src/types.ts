@@ -2,6 +2,15 @@
 // GrapesJS Editor Types (matches OSS grapesjs API surface)
 // ---------------------------------------------------------------------------
 
+export interface PageMetadata {
+  title?: string;
+  description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+}
+
 export interface GjsEditor {
   setComponents: (html: string) => void;
   getHtml: () => string;
@@ -67,6 +76,10 @@ export interface GjsEditor {
       data: { name: string; component: string },
       opts?: { select?: boolean },
     ) => GjsPage;
+  };
+  AssetManager?: {
+    getAll: () => { models: { get: (key: string) => string }[] };
+    on: (event: string, cb: (...args: unknown[]) => void) => void;
   };
   Parser?: {
     parseHtml: (
@@ -172,6 +185,9 @@ export interface GrapevineBuilderProps {
   onLoad?: () => Promise<object>;
   onAssetUpload?: (files: File[]) => Promise<{ src: string }[]>;
   onAssetDelete?: (urls: string[]) => Promise<void>;
+  onChange?: (state: { isDirty: boolean }) => void;
+  /** Raw HTML string to load on mount. Takes priority over onLoad. */
+  initialHtml?: string;
   chatEndpoint: string;
   generateEndpoint: string;
   /** Extra headers sent with every chat / generate request (e.g. API keys). */
@@ -217,10 +233,14 @@ export interface GrapevineRef {
   ) => Promise<void>;
   generate: (prompt: string) => Promise<void>;
   exportHtml: () => { html: string; css: string; full: string };
+  exportAllPages: () => { pageName: string; html: string; css: string; full: string }[];
   togglePreview: () => void;
   undo: () => void;
   redo: () => void;
   getEditor: () => GjsEditor | null;
+  isDirty: () => boolean;
+  getMetadata: () => PageMetadata;
+  setMetadata: (metadata: Partial<PageMetadata>) => void;
   on: (event: GrapevineEvent, handler: (...args: unknown[]) => void) => void;
   off: (event: GrapevineEvent, handler: (...args: unknown[]) => void) => void;
 }

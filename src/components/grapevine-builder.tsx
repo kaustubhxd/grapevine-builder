@@ -13,19 +13,23 @@ import gjsBasicBlocks from "grapesjs-blocks-basic";
 import { EventEmitter } from "../lib/event-emitter";
 import { buildProjectContext } from "../lib/project-context";
 import { applyToolResult, resolveClientTool } from "../lib/editor-tools";
-import { exportHtml } from "../lib/export-html";
+import { exportHtml, exportAllPages } from "../lib/export-html";
 import { parseUIMessageStream } from "../lib/stream-parser";
 import { SERVER_TOOL_NAMES } from "../server/tools";
 import type {
   GjsEditor as GjsEditorType,
   GrapevineBuilderProps,
   GrapevineRef,
+  PageMetadata,
   PendingClientTool,
   SelectedComponent,
 } from "../types";
 import "../styles/editor.css";
 import { Toolbar } from "./toolbar";
-import { ChatPanel } from "./chat-panel";
+
+const ChatPanel = React.lazy(() =>
+  import("./chat-panel").then((m) => ({ default: m.ChatPanel })),
+);
 
 /** Convert a data: URL to a File object for upload. */
 function dataUrlToFile(dataUrl: string, filename: string): File {
@@ -51,6 +55,9 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
       onSave,
       onLoad,
       onAssetUpload,
+      onAssetDelete,
+      onChange,
+      initialHtml,
       projectType = "web",
       className,
       showChat,
@@ -66,9 +73,17 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
     const onSaveRef = useRef(onSave);
     const onLoadRef = useRef(onLoad);
     const onAssetUploadRef = useRef(onAssetUpload);
+    const onAssetDeleteRef = useRef(onAssetDelete);
+    const onChangeRef = useRef(onChange);
+    const initialHtmlRef = useRef(initialHtml);
+    const metadataRef = useRef<PageMetadata>({});
+    const isDirtyRef = useRef(false);
     onSaveRef.current = onSave;
     onLoadRef.current = onLoad;
     onAssetUploadRef.current = onAssetUpload;
+    onAssetDeleteRef.current = onAssetDelete;
+    onChangeRef.current = onChange;
+    initialHtmlRef.current = initialHtml;
     const conversationRef = useRef<
       {
         role: string;
@@ -99,7 +114,12 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
         exportHtml: () => {
           const editor = editorRef.current;
           if (!editor) return { html: "", css: "", full: "" };
-          return exportHtml(editor);
+          return exportHtml(editor, metadataRef.current);
+        },
+        exportAllPages: () => {
+          const editor = editorRef.current;
+          if (!editor) return [];
+          return exportAllPages(editor, metadataRef.current);
         },
         togglePreview: () => {
           if (isPreview) {
@@ -109,11 +129,16 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
           } else {
             const editor = editorRef.current;
             if (!editor) return;
-            const { full } = exportHtml(editor);
+            const { full } = exportHtml(editor, metadataRef.current);
             const blob = new Blob([full], { type: "text/html" });
             setPreviewUrl(URL.createObjectURL(blob));
             setIsPreview(true);
           }
+        },
+        isDirty: () => isDirtyRef.current,
+        getMetadata: () => ({ ...metadataRef.current }),
+        setMetadata: (metadata) => {
+          metadataRef.current = { ...metadataRef.current, ...metadata };
         },
         undo: () => editorRef.current?.UndoManager.undo(),
         redo: () => editorRef.current?.UndoManager.redo(),
@@ -491,6 +516,32 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
       gjsEditor.on("component:selected", updateSelection);
       gjsEditor.on("component:deselected", updateSelection);
 
+      // Dirty state tracking
+      const markDirty = () => {
+        if (!isDirtyRef.current) {
+          isDirtyRef.current = true;
+          onChangeRef.current?.({ isDirty: true });
+        }
+      };
+      gjsEditor.on("component:add", markDirty);
+      gjsEditor.on("component:remove", markDirty);
+      gjsEditor.on("component:update", markDirty);
+      gjsEditor.on("style:update", markDirty);
+      gjsEditor.on("storage:store", () => {
+        if (isDirtyRef.current) {
+          isDirtyRef.current = false;
+          onChangeRef.current?.({ isDirty: false });
+        }
+      });
+
+      // Wire onAssetDelete
+      if (onAssetDeleteRef.current) {
+        gjsEditor.AssetManager?.on("asset:remove", (asset: unknown) => {
+          const src = (asset as { get?: (k: string) => string }).get?.("src");
+          if (src) onAssetDeleteRef.current?.([src]);
+        });
+      }
+
       // Hide shimmer once real content is loaded/added
       const checkContent = () => {
         const wrapper = gjsEditor.DomComponents?.getWrapper?.();
@@ -504,7 +555,14 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
       };
       gjsEditor.on("component:add", checkContent);
       // Also check after initial load completes
-      gjsEditor.on("load", checkContent);
+      gjsEditor.on("load", () => {
+        checkContent();
+        // Apply initialHtml after load — takes priority over onLoad data
+        if (initialHtmlRef.current) {
+          gjsEditor.setComponents(initialHtmlRef.current);
+          setHasContent(true);
+        }
+      });
 
       emitterRef.current.emit("ready");
     }, []);
@@ -539,7 +597,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
               } else {
                 const editor = editorRef.current;
                 if (!editor) return;
-                const { full } = exportHtml(editor);
+                const { full } = exportHtml(editor, metadataRef.current);
                 const blob = new Blob([full], { type: "text/html" });
                 setPreviewUrl(URL.createObjectURL(blob));
                 setIsPreview(true);
@@ -548,7 +606,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
             onExport={() => {
               const editor = editorRef.current;
               if (!editor) return;
-              const { full } = exportHtml(editor);
+              const { full } = exportHtml(editor, metadataRef.current);
               const a = document.createElement("a");
               a.href = URL.createObjectURL(
                 new Blob([full], { type: "text/html" }),
@@ -672,6 +730,9 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
                     { name: "Mobile", width: "375px", widthMedia: "480px" },
                   ],
                 },
+                parser: {
+                  optionsHtml: { allowScripts: true },
+                },
                 plugins: [storagePlugin, gjsBasicBlocks],
                 pluginsOpts: {
                   [gjsBasicBlocks as unknown as string]: {
@@ -683,17 +744,19 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
             />
           </div>
           {showChat && (
-            <ChatPanel
-              onChat={handleChat}
-              onEvent={(event, handler) =>
-                emitterRef.current.on(event, handler)
-              }
-              offEvent={(event, handler) =>
-                emitterRef.current.off(event, handler)
-              }
-              onAssetUpload={onAssetUpload}
-              className="grapevine-chat-sidebar"
-            />
+            <React.Suspense fallback={null}>
+              <ChatPanel
+                onChat={handleChat}
+                onEvent={(event, handler) =>
+                  emitterRef.current.on(event, handler)
+                }
+                offEvent={(event, handler) =>
+                  emitterRef.current.off(event, handler)
+                }
+                onAssetUpload={onAssetUpload}
+                className="grapevine-chat-sidebar"
+              />
+            </React.Suspense>
           )}
         </div>
       </div>

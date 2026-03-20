@@ -7,6 +7,8 @@ import React, {
   useState,
   type RefObject,
 } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { GrapevineRef } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -269,7 +271,15 @@ export function ChatPanel(props: ChatPanelProps) {
                   ))}
                 </div>
               )}
-              <div className="gvn-chat-msg-text">{msg.text}</div>
+              <div className="gvn-chat-msg-text">
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text}
+                  </ReactMarkdown>
+                ) : (
+                  msg.text
+                )}
+              </div>
             </div>
           ))
         )}
