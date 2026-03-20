@@ -130,7 +130,7 @@ export default function App() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    fetch("/api/grapes-ai-chat")
+    fetch("/api/health")
       .then((r) => r.json())
       .then((d) => setHasServerKey(!!d.hasServerKey))
       .catch(() => {})
