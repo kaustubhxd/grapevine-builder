@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { GrapevineBuilder, ChatPanel } from "@grapevine/builder";
 import type { GrapevineRef } from "@grapevine/builder";
 
@@ -126,6 +126,16 @@ export default function App() {
   const builderRef = useRef<GrapevineRef>(null);
   const [showChat, setShowChat] = useState(true);
   const [apiKey, setApiKey] = useState(getStoredKey);
+  const [hasServerKey, setHasServerKey] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/grapes-ai-chat")
+      .then((r) => r.json())
+      .then((d) => setHasServerKey(!!d.hasServerKey))
+      .catch(() => {})
+      .finally(() => setChecking(false));
+  }, []);
 
   const handleKeySubmit = useCallback((key: string) => {
     storeKey(key);
@@ -139,11 +149,15 @@ export default function App() {
 
   /** Headers sent with every API request — carries the user's key. */
   const requestHeaders = useMemo(
-    () => ({ "x-openai-api-key": apiKey }),
+    () => (apiKey ? { "x-openai-api-key": apiKey } : {}),
     [apiKey],
   );
 
-  if (!apiKey) {
+  if (checking) {
+    return null;
+  }
+
+  if (!apiKey && !hasServerKey) {
     return <ApiKeyScreen onSubmit={handleKeySubmit} />;
   }
 

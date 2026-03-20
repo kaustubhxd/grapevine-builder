@@ -4,14 +4,21 @@ import { createGrapevineRoute } from "../src/server.js";
 export const config = { maxDuration: 60 };
 
 export default async function handler(req: Request): Promise<Response> {
+  if (req.method === "GET") {
+    return new Response(
+      JSON.stringify({ hasServerKey: !!process.env.OPENAI_API_KEY }),
+      { headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const apiKey = req.headers.get("x-openai-api-key");
+  const apiKey = process.env.OPENAI_API_KEY ?? req.headers.get("x-openai-api-key");
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "Missing API key header" }),
+      JSON.stringify({ error: "Missing API key" }),
       { status: 401, headers: { "Content-Type": "application/json" } },
     );
   }
