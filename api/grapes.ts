@@ -16,10 +16,13 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  const openai = createOpenAI({ apiKey });
+  const baseURL = req.headers.get("x-openai-base-url") ?? undefined;
+  const modelId = req.headers.get("x-openai-model") ?? "gpt-5.4";
+
+  const openai = createOpenAI({ apiKey, baseURL });
   const route = createGrapevineRoute({
-    model: openai("gpt-5.4"),
-    subAgentModel: openai("gpt-5.4"),
+    model: openai(modelId),
+    subAgentModel: openai(modelId),
   });
 
   return route(req);

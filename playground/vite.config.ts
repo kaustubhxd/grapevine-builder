@@ -41,10 +41,15 @@ export default defineConfig({
             return;
           }
 
-          const openai = createOpenAI({ apiKey });
+          const baseURL =
+            (req.headers["x-openai-base-url"] as string) || undefined;
+          const modelId =
+            (req.headers["x-openai-model"] as string) || "gpt-5.4";
+
+          const openai = createOpenAI({ apiKey, baseURL });
           const handler = createGrapevineRoute({
-            model: openai("gpt-5.4"),
-            subAgentModel: openai("gpt-5.4"),
+            model: openai(modelId),
+            subAgentModel: openai(modelId),
           });
 
           // Read body
