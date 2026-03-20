@@ -181,7 +181,7 @@ The project data is a plain JSON object (GrapesJS project format — pages, comp
 
 **Client tools** (e.g., `getPageContent`) are resolved in the browser by reading from the live GrapesJS editor.
 
-**Server tools** (e.g., `editComponentCode`) spawn a sub-agent that generates HTML/CSS code, which is streamed back and applied to the editor.
+**Server tools** (e.g., `editComponentCode`) spawn a sub-agent that generates HTML/CSS code, which is streamed back and applied back to the editor.
 
 ## License
 
