@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { createGrapevineRoute } from "../src/server";
+import { createGrapevineRoute } from "../src/server.js";
 
 export const config = { maxDuration: 60 };
 
