@@ -149,7 +149,7 @@ export default function App() {
 
   /** Headers sent with every API request — carries the user's key. */
   const requestHeaders = useMemo(
-    () => (apiKey ? { "x-openai-api-key": apiKey } : {}),
+    () => (apiKey ? { "x-openai-api-key": apiKey } : undefined),
     [apiKey],
   );
 
