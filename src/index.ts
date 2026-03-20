@@ -8,6 +8,7 @@ export type {
   GrapevineRef,
   GrapevineEvent,
   PageMetadata,
+  Snapshot,
   SelectedComponent,
   GjsEditor,
   GjsComponent,

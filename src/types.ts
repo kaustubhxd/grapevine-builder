@@ -11,11 +11,20 @@ export interface PageMetadata {
   canonicalUrl?: string;
 }
 
+export interface Snapshot {
+  id: string;
+  label: string;
+  timestamp: number;
+  /** Either a raw HTML string or a GrapesJS project JSON object. */
+  data: string | object;
+}
+
 export interface GjsEditor {
   setComponents: (html: string) => void;
   getHtml: () => string;
   getCss: () => string;
   store: () => Promise<void>;
+  getProjectData: () => object;
   getSelected: () => GjsComponent | null;
   getSelectedAll?: () => GjsComponent[];
   getWrapper: () => GjsComponent;
@@ -186,6 +195,7 @@ export interface GrapevineBuilderProps {
   onAssetUpload?: (files: File[]) => Promise<{ src: string }[]>;
   onAssetDelete?: (urls: string[]) => Promise<void>;
   onChange?: (state: { isDirty: boolean }) => void;
+  onSnapshot?: (snapshot: Snapshot) => void;
   /** Raw HTML string to load on mount. Takes priority over onLoad. */
   initialHtml?: string;
   chatEndpoint: string;
@@ -241,6 +251,8 @@ export interface GrapevineRef {
   isDirty: () => boolean;
   getMetadata: () => PageMetadata;
   setMetadata: (metadata: Partial<PageMetadata>) => void;
+  createSnapshot: (label?: string) => Snapshot;
+  loadSnapshot: (data: string | object) => void;
   on: (event: GrapevineEvent, handler: (...args: unknown[]) => void) => void;
   off: (event: GrapevineEvent, handler: (...args: unknown[]) => void) => void;
 }

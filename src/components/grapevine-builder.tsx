@@ -23,6 +23,7 @@ import type {
   PageMetadata,
   PendingClientTool,
   SelectedComponent,
+  Snapshot,
 } from "../types";
 import "../styles/editor.css";
 import { Toolbar } from "./toolbar";
@@ -57,6 +58,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
       onAssetUpload,
       onAssetDelete,
       onChange,
+      onSnapshot,
       initialHtml,
       projectType = "web",
       className,
@@ -75,6 +77,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
     const onAssetUploadRef = useRef(onAssetUpload);
     const onAssetDeleteRef = useRef(onAssetDelete);
     const onChangeRef = useRef(onChange);
+    const onSnapshotRef = useRef(onSnapshot);
     const initialHtmlRef = useRef(initialHtml);
     const metadataRef = useRef<PageMetadata>({});
     const isDirtyRef = useRef(false);
@@ -83,6 +86,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
     onAssetUploadRef.current = onAssetUpload;
     onAssetDeleteRef.current = onAssetDelete;
     onChangeRef.current = onChange;
+    onSnapshotRef.current = onSnapshot;
     initialHtmlRef.current = initialHtml;
     const conversationRef = useRef<
       {
@@ -139,6 +143,30 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
         getMetadata: () => ({ ...metadataRef.current }),
         setMetadata: (metadata) => {
           metadataRef.current = { ...metadataRef.current, ...metadata };
+        },
+        createSnapshot: (label) => {
+          const editor = editorRef.current;
+          const data = editor
+            ? (editor.getProjectData() as object)
+            : editor!.getHtml();
+          const snapshot: Snapshot = {
+            id: crypto.randomUUID(),
+            label: label ?? new Date().toLocaleString(),
+            timestamp: Date.now(),
+            data,
+          };
+          onSnapshotRef.current?.(snapshot);
+          return snapshot;
+        },
+        loadSnapshot: (data) => {
+          const editor = editorRef.current;
+          if (!editor) return;
+          if (typeof data === "string") {
+            editor.setComponents(data);
+          } else {
+            editor.loadProjectData(data as { pages: { name?: string; component: string }[] });
+          }
+          setHasContent(true);
         },
         undo: () => editorRef.current?.UndoManager.undo(),
         redo: () => editorRef.current?.UndoManager.redo(),
