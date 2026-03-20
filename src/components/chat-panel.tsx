@@ -27,7 +27,10 @@ type ChatPanelProps = {
   /** Accept file types for image attachments. Defaults to "image/*" */
   acceptFileTypes?: string;
   /** Called when user attaches files — should upload and return hosted URLs */
-  onAssetUpload?: (files: File[]) => Promise<{ src: string }[]>;
+  onAssetUpload?: (
+    files: File[],
+    callbacks?: { onProgress?: (fraction: number) => void },
+  ) => Promise<{ src: string }[]>;
 } & (
   | {
       /** Pass a ref to a GrapevineBuilder instance (external usage) */
@@ -135,6 +138,7 @@ export function ChatPanel(props: ChatPanelProps) {
         moveComponent: "Moving component…",
         listPages: "Checking pages…",
         runCommand: "Applying setting…",
+        assetUpload: "Uploading image…",
       };
       setToolStatus(friendlyNames[name] ?? "Working…");
     };
@@ -170,13 +174,26 @@ export function ChatPanel(props: ChatPanelProps) {
 
     if (attachedImages.length > 0 && onAssetUpload) {
       try {
-        const results = await onAssetUpload(attachedImages.map((a) => a.file));
+        const results = await onAssetUpload(
+          attachedImages.map((a) => a.file),
+          {
+            onProgress: (fraction) => {
+              setToolStatus(
+                fraction < 1
+                  ? `Uploading image… ${Math.round(fraction * 100)}%`
+                  : "Uploading image…",
+              );
+            },
+          },
+        );
+        setToolStatus(null);
         imagePayload = results.map((r, i) => ({
           mediaType: attachedImages[i].file.type,
           url: r.src,
           filename: attachedImages[i].file.name,
         }));
       } catch {
+        setToolStatus(null);
         // Upload failed — send without images
       }
     }

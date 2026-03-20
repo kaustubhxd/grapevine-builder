@@ -192,7 +192,10 @@ export interface PendingClientTool {
 export interface GrapevineBuilderProps {
   onSave?: (project: object) => Promise<void>;
   onLoad?: () => Promise<object>;
-  onAssetUpload?: (files: File[]) => Promise<{ src: string }[]>;
+  onAssetUpload?: (
+    files: File[],
+    callbacks?: { onProgress?: (fraction: number) => void },
+  ) => Promise<{ src: string }[]>;
   onAssetDelete?: (urls: string[]) => Promise<void>;
   onChange?: (state: { isDirty: boolean }) => void;
   onSnapshot?: (snapshot: Snapshot) => void;
@@ -206,6 +209,8 @@ export interface GrapevineBuilderProps {
   className?: string;
   /** Show the built-in chat panel alongside the canvas. */
   showChat?: boolean;
+  /** Show the GrapesJS block panel. */
+  showBlocks?: boolean;
   /** Custom idle state shown when canvas is empty and nothing is loading. */
   renderIdle?: () => React.ReactNode;
   /** Custom loading state shown when canvas is empty and generation/chat is in progress. */

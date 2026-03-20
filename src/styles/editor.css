@@ -22,6 +22,75 @@
   display: none; /* toolbar is inside editor column, handled via wrapper */
 }
 
+/* Side-by-side layout when showBlocks is enabled */
+.grapevine-builder--with-blocks {
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.grapevine-blocks-panel {
+  width: 220px;
+  min-width: 180px;
+  max-width: 260px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  background: #111111;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* GrapesJS block manager styles inside the panel */
+.grapevine-blocks-panel .gjs-block-categories {
+  padding: 8px 0;
+}
+
+.grapevine-blocks-panel .gjs-block-category .gjs-title {
+  background: transparent;
+  color: #888888;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px 4px;
+  cursor: pointer;
+}
+
+.grapevine-blocks-panel .gjs-blocks-c {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 8px;
+}
+
+.grapevine-blocks-panel .gjs-block {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: grab;
+  transition: background 0.15s, border-color 0.15s;
+  color: #cccccc;
+  font-size: 11px;
+}
+
+.grapevine-blocks-panel .gjs-block:hover {
+  background: #222222;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.grapevine-blocks-panel .gjs-block__media {
+  font-size: 22px;
+  margin-bottom: 4px;
+  color: #888888;
+}
+
+.grapevine-blocks-panel .gjs-block__label {
+  font-size: 10px;
+  line-height: 1.3;
+}
+
 .grapevine-chat-sidebar {
   width: 340px;
   min-width: 280px;

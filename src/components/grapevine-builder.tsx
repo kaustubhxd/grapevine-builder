@@ -63,6 +63,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
       projectType = "web",
       className,
       showChat,
+      showBlocks,
       renderIdle,
       renderLoading,
       grapesjsUrl = "https://unpkg.com/grapesjs",
@@ -81,6 +82,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
     const initialHtmlRef = useRef(initialHtml);
     const metadataRef = useRef<PageMetadata>({});
     const isDirtyRef = useRef(false);
+    const blocksPanelRef = useRef<HTMLDivElement | null>(null);
     onSaveRef.current = onSave;
     onLoadRef.current = onLoad;
     onAssetUploadRef.current = onAssetUpload;
@@ -229,7 +231,15 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
                   `image-${index}.${img.mediaType.split("/")[1] || "png"}`;
                 return dataUrlToFile(img.url, name);
               });
-              const results = await uploadFn(files);
+              const results = await uploadFn(files, {
+                onProgress: (fraction) => {
+                  emitter.emit("tool:status", {
+                    name: "assetUpload",
+                    status: "in-progress",
+                    metadata: { progress: fraction },
+                  });
+                },
+              });
               for (let i = 0; i < needsUpload.length; i++) {
                 imageUrls[needsUpload[i].index] = results[i].src;
               }
@@ -409,6 +419,7 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
           });
 
           emitter.emit("chat:done", { text: finalText });
+          emitter.emit("operation:complete", { text: finalText });
           setIsLoading(false);
 
           // Auto-save after changes
@@ -601,8 +612,11 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
 
     return (
       <div
-        className={`grapevine-builder ${showChat ? "grapevine-builder--with-chat" : ""} ${className || ""}`}
+        className={`grapevine-builder ${showChat ? "grapevine-builder--with-chat" : ""} ${showBlocks ? "grapevine-builder--with-blocks" : ""} ${className || ""}`}
       >
+        {showBlocks && (
+          <div ref={blocksPanelRef} className="grapevine-blocks-panel" />
+        )}
         <div className="grapevine-canvas-col">
           <Toolbar
             onUndo={() => editorRef.current?.UndoManager.undo()}
@@ -720,7 +734,12 @@ export const GrapevineBuilder = forwardRef<GrapevineRef, GrapevineBuilderProps>(
                     }
                   : { type: "" as const },
                 panels: { defaults: [] },
-                blockManager: { appendTo: "" },
+                blockManager: {
+                  appendTo:
+                    showBlocks && blocksPanelRef.current
+                      ? blocksPanelRef.current
+                      : "",
+                },
                 styleManager: { appendTo: "" },
                 layerManager: { appendTo: "" },
                 assetManager: {
