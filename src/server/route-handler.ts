@@ -14,9 +14,9 @@ import type {
   ProjectContext,
   GrapevineRouteOptions,
   GrapevineUsage,
-} from "../types";
-import { composeSystemPrompt, buildCodeAgentPrompt } from "./prompts";
-import { getToolMode } from "./tools";
+} from "../types.js";
+import { composeSystemPrompt, buildCodeAgentPrompt } from "./prompts.js";
+import { getToolMode } from "./tools.js";
 
 /**
  * Build the tool definitions with execute functions for server tools.

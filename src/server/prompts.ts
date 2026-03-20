@@ -1,4 +1,4 @@
-import type { ProjectContext } from "../types";
+import type { ProjectContext } from "../types.js";
 
 // ---------------------------------------------------------------------------
 // Main Chat System Prompt
